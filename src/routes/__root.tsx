@@ -29,14 +29,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Estação Laser BH" },
+      { name: "description", content: "Depilação a laser, limpeza de pele e criolipólise com protocolos personalizados em Belo Horizonte." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Estação Laser BH" },
+      { property: "og:description", content: "Depilação a laser, limpeza de pele e criolipólise com protocolos personalizados em Belo Horizonte." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Estação Laser BH" },
+      { name: "twitter:description", content: "Depilação a laser, limpeza de pele e criolipólise com protocolos personalizados em Belo Horizonte." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Y9TVXpfXi7fa6JM2PZBdAXWoZjx2/social-images/social-1777578489261-WhatsApp_Image_2026-04-29_at_14.55.23.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Y9TVXpfXi7fa6JM2PZBdAXWoZjx2/social-images/social-1777578489261-WhatsApp_Image_2026-04-29_at_14.55.23.webp" },
     ],
     links: [
       {
