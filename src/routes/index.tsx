@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MessageCircle, Sparkles, ShieldCheck, Zap, Heart, Award, CheckCircle2, Instagram, MapPin } from "lucide-react";
+import logo from "@/assets/logo.png";
+import laserCta from "@/assets/laser-cta.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -44,9 +46,7 @@ function Index() {
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-30 px-6 md:px-12 py-5 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-full gradient-warm flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-white" />
-          </div>
+          <img src={logo} alt="Estação Laser" className="w-9 h-9 object-contain" />
           <span className="font-bold text-lg tracking-tight">Estação Laser</span>
         </div>
         <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-[oklch(0.49_0.15_45)]">
@@ -125,9 +125,9 @@ function Index() {
       <section className="py-20 md:py-28 px-6 md:px-12">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center mb-16">
-            <div className="relative order-2 lg:order-1">
+            <div className="relative order-2 lg:order-1 mx-auto w-full max-w-sm">
               <div className="absolute -inset-4 gradient-warm rounded-3xl blur-2xl opacity-15" />
-              <img src={SERVICES_IMG} alt="Tecnologia premium e protocolos personalizados" loading="lazy" className="relative rounded-3xl shadow-premium w-full h-[440px] object-cover" />
+              <img src={SERVICES_IMG} alt="Tecnologia premium e protocolos personalizados" loading="lazy" className="relative rounded-3xl shadow-premium w-full aspect-[9/16] object-cover" />
             </div>
             <div className="space-y-4 order-1 lg:order-2">
               <span className="text-primary font-semibold text-sm uppercase tracking-wider">Nossos Serviços</span>
@@ -186,7 +186,7 @@ function Index() {
       <section className="py-20 md:py-28 px-6 md:px-12">
         <div className="max-w-7xl mx-auto">
           <div className="relative rounded-3xl overflow-hidden shadow-premium">
-            <img src={CTA_IMG} alt="Sua melhor versão começa agora" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+            <img src={laserCta} alt="Depilação a laser com tecnologia premium" loading="lazy" width={1600} height={900} className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.18_0.005_0)/0.85] via-[oklch(0.18_0.005_0)/0.7] to-[oklch(0.18_0.005_0)/0.4]" style={{ background: "linear-gradient(to right, oklch(0.18 0.005 0 / 0.88), oklch(0.18 0.005 0 / 0.65), oklch(0.18 0.005 0 / 0.3))" }} />
             <div className="relative px-8 md:px-16 py-20 md:py-32 max-w-2xl">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-5">
@@ -206,9 +206,7 @@ function Index() {
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-full gradient-warm flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
+              <img src={logo} alt="Estação Laser" className="w-9 h-9 object-contain" />
               <span className="font-bold text-lg">Estação Laser</span>
             </div>
             <p className="text-white/70 text-sm">Estética avançada de alta performance em Belo Horizonte.</p>
