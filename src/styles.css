@@ -139,8 +139,36 @@
     border-color: var(--color-border);
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .gradient-warm {
+    background: linear-gradient(135deg, oklch(0.58 0.16 45) 0%, oklch(0.7 0.17 50) 100%);
+  }
+  .text-gradient-warm {
+    background: linear-gradient(135deg, oklch(0.58 0.16 45) 0%, oklch(0.7 0.17 50) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .shadow-premium {
+    box-shadow: 0 20px 60px -15px oklch(0.58 0.16 45 / 0.35);
+  }
+  .shadow-soft {
+    box-shadow: 0 10px 40px -12px oklch(0.18 0.005 0 / 0.12);
   }
 }
