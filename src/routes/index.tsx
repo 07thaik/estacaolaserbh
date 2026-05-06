@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { MessageCircle, Sparkles, ShieldCheck, Zap, Heart, Award, CheckCircle2, Instagram, MapPin } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import logo from "@/assets/logo.png";
 import laserCta from "@/assets/laser-cta.jpg";
 
@@ -21,26 +23,53 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-const WHATSAPP = "https://wa.me/5531995127348";
+const WHATSAPP_VILA_CLORIS = "https://wa.me/5531995127348";
+const WHATSAPP_ALIPIO = "https://wa.me/5531993800927";
 const HERO_IMG = "https://i.ibb.co/xcg1hhZ/Whats-App-Image-2026-04-29-at-14-55-23.jpg";
 const SERVICES_IMG = "https://i.ibb.co/wFr2YgDy/Whats-App-Image-2026-04-29-at-14-54-57.jpg";
-const CTA_IMG = "https://i.ibb.co/pj7RYzKP/Whats-App-Image-2026-04-29-at-14-53-02.jpg";
+const PROMO_IMG = "https://i.ibb.co/KzVH8kZ7/Whats-App-Image-2026-04-29-at-14-53-02.jpg";
 
-function CTAButton({ children, variant = "primary", size = "lg" }: { children: React.ReactNode; variant?: "primary" | "secondary"; size?: "lg" | "md" }) {
-  const base = "inline-flex items-center justify-center gap-2 font-semibold rounded-full transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]";
+const UNITS = {
+  alipio: {
+    name: "Alípio de Melo",
+    address: "Avenida Abílio Machado, 1264 — Sala 1014",
+    neighborhood: "Alípio de Melo, Belo Horizonte - MG",
+    whatsapp: WHATSAPP_ALIPIO,
+    phone: "(31) 99380-0927",
+    mapsQuery: "Avenida Abílio Machado 1264 Alípio de Melo Belo Horizonte",
+  },
+  vila: {
+    name: "Vila Clóris",
+    address: "Rua das Videiras, 290",
+    neighborhood: "Vila Clóris, Belo Horizonte - MG",
+    whatsapp: WHATSAPP_VILA_CLORIS,
+    phone: "(31) 99512-7348",
+    mapsQuery: "Rua das Videiras 290 Vila Cloris Belo Horizonte",
+  },
+} as const;
+
+type UnitKey = keyof typeof UNITS;
+
+function CTAButton({ children, variant = "primary", size = "lg", onClick }: { children: React.ReactNode; variant?: "primary" | "secondary"; size?: "lg" | "md"; onClick: () => void }) {
+  const base = "inline-flex items-center justify-center gap-2 font-semibold rounded-full transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] cursor-pointer";
   const sizes = { lg: "px-8 py-4 text-base md:text-lg", md: "px-6 py-3 text-sm md:text-base" };
   const variants = {
     primary: "bg-primary text-primary-foreground hover:bg-[oklch(0.49_0.15_45)] shadow-premium",
     secondary: "bg-white text-primary border-2 border-primary hover:bg-accent",
   };
   return (
-    <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className={`${base} ${sizes[size]} ${variants[variant]}`}>
+    <button type="button" onClick={onClick} className={`${base} ${sizes[size]} ${variants[variant]}`}>
       {children}
-    </a>
+    </button>
   );
 }
 
 function Index() {
+  const [open, setOpen] = useState(false);
+  const [unit, setUnit] = useState<UnitKey>("vila");
+  const openWhats = () => setOpen(true);
+  const selected = UNITS[unit];
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Header */}
@@ -49,9 +78,9 @@ function Index() {
           <img src={logo} alt="Estação Laser" className="w-9 h-9 object-contain" />
           <span className="font-bold text-lg tracking-tight">Estação Laser</span>
         </div>
-        <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-[oklch(0.49_0.15_45)]">
-          <MessageCircle className="w-4 h-4" /> (31) 99512-7348
-        </a>
+        <button type="button" onClick={openWhats} className="hidden md:inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-[oklch(0.49_0.15_45)]">
+          <MessageCircle className="w-4 h-4" /> Falar no WhatsApp
+        </button>
       </header>
 
       {/* HERO */}
@@ -70,8 +99,8 @@ function Index() {
               Depilação a laser, limpeza de pele e criolipólise com protocolos personalizados em Belo Horizonte.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <CTAButton variant="primary"><Sparkles className="w-5 h-5" /> Agendar Avaliação Especializada</CTAButton>
-              <CTAButton variant="secondary"><MessageCircle className="w-5 h-5" /> Falar no WhatsApp</CTAButton>
+              <CTAButton variant="primary" onClick={openWhats}><Sparkles className="w-5 h-5" /> Agendar Avaliação Especializada</CTAButton>
+              <CTAButton variant="secondary" onClick={openWhats}><MessageCircle className="w-5 h-5" /> Falar no WhatsApp</CTAButton>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6">
               {[
@@ -115,7 +144,7 @@ function Index() {
               Na <span className="text-primary font-bold">Estação Laser</span> cada tratamento é ajustado para sua necessidade real.
             </p>
             <div className="mt-8">
-              <CTAButton><MessageCircle className="w-5 h-5" /> Quero Minha Avaliação</CTAButton>
+              <CTAButton onClick={openWhats}><MessageCircle className="w-5 h-5" /> Quero Minha Avaliação</CTAButton>
             </div>
           </div>
         </div>
@@ -151,7 +180,37 @@ function Index() {
             ))}
           </div>
           <div className="text-center mt-12">
-            <CTAButton><Sparkles className="w-5 h-5" /> Agendar Avaliação Agora</CTAButton>
+            <CTAButton onClick={openWhats}><Sparkles className="w-5 h-5" /> Agendar Avaliação Agora</CTAButton>
+          </div>
+        </div>
+      </section>
+
+      {/* PROMO */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-accent/40">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="relative">
+            <div className="absolute -inset-4 gradient-warm rounded-3xl blur-2xl opacity-20" />
+            <img src={PROMO_IMG} alt="Promoção exclusiva de depilação a laser" loading="lazy" className="relative rounded-3xl shadow-premium w-full object-cover" />
+          </div>
+          <div className="space-y-6">
+            <span className="inline-block px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs md:text-sm font-bold uppercase tracking-wider">Oferta Exclusiva</span>
+            <h2 className="text-3xl md:text-5xl font-bold leading-[1.1]">
+              Condições especiais para sua <span className="text-gradient-warm">primeira avaliação</span>
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Aproveite preços promocionais em pacotes de depilação a laser com a tecnologia Galaxy Fiber Evo. Vagas limitadas — garanta a sua agora pelo WhatsApp.
+            </p>
+            <ul className="space-y-3">
+              {["Avaliação personalizada sem compromisso", "Pacotes com condições exclusivas", "Atendimento direto com especialista"].map((b, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">{b}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="pt-2">
+              <CTAButton onClick={openWhats}><Sparkles className="w-5 h-5" /> Quero a Promoção</CTAButton>
+            </div>
           </div>
         </div>
       </section>
@@ -187,7 +246,7 @@ function Index() {
         <div className="max-w-7xl mx-auto">
           <div className="relative rounded-3xl overflow-hidden shadow-premium">
             <img src={laserCta} alt="Depilação a laser com tecnologia premium" loading="lazy" width={1600} height={900} className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.18_0.005_0)/0.85] via-[oklch(0.18_0.005_0)/0.7] to-[oklch(0.18_0.005_0)/0.4]" style={{ background: "linear-gradient(to right, oklch(0.18 0.005 0 / 0.88), oklch(0.18 0.005 0 / 0.65), oklch(0.18 0.005 0 / 0.3))" }} />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(to right, oklch(0.18 0.005 0 / 0.88), oklch(0.18 0.005 0 / 0.65), oklch(0.18 0.005 0 / 0.3))" }} />
             <div className="relative px-8 md:px-16 py-20 md:py-32 max-w-2xl">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-5">
                 Sua melhor versão começa agora
@@ -195,7 +254,74 @@ function Index() {
               <p className="text-lg md:text-xl text-white/90 mb-8 leading-relaxed">
                 Agende sua avaliação e fale direto no WhatsApp.
               </p>
-              <CTAButton><Sparkles className="w-5 h-5" /> Garantir Meu Protocolo Personalizado</CTAButton>
+              <CTAButton onClick={openWhats}><Sparkles className="w-5 h-5" /> Garantir Meu Protocolo Personalizado</CTAButton>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* LOCALIZAÇÃO */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-secondary">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10 space-y-4">
+            <span className="text-primary font-semibold text-sm uppercase tracking-wider">Onde Estamos</span>
+            <h2 className="text-3xl md:text-5xl font-bold leading-tight">Nossas Unidades em <span className="text-gradient-warm">Belo Horizonte</span></h2>
+            <p className="text-muted-foreground text-lg">Selecione a unidade mais próxima de você.</p>
+          </div>
+
+          <div className="flex justify-center mb-10">
+            <div className="inline-flex p-1.5 bg-card rounded-full border border-border shadow-soft">
+              {(Object.keys(UNITS) as UnitKey[]).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setUnit(k)}
+                  className={`px-5 md:px-8 py-3 rounded-full text-sm md:text-base font-semibold transition-all ${
+                    unit === k ? "bg-primary text-primary-foreground shadow-premium" : "text-foreground hover:text-primary"
+                  }`}
+                >
+                  {UNITS[k].name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8 items-stretch">
+            <div className="bg-card rounded-3xl p-8 md:p-10 shadow-soft border border-border/50 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-2xl gradient-warm flex items-center justify-center">
+                    <MapPin className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold">Unidade {selected.name}</h3>
+                </div>
+                <p className="text-lg font-medium mb-1">{selected.address}</p>
+                <p className="text-muted-foreground mb-6">{selected.neighborhood}</p>
+                <div className="flex items-center gap-2 text-sm">
+                  <MessageCircle className="w-4 h-4 text-primary" />
+                  <span className="font-medium">{selected.phone}</span>
+                </div>
+              </div>
+              <div className="mt-8">
+                <a
+                  href={selected.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 font-semibold rounded-full px-8 py-4 text-base bg-primary text-primary-foreground hover:bg-[oklch(0.49_0.15_45)] shadow-premium transition-all hover:scale-[1.03]"
+                >
+                  <MessageCircle className="w-5 h-5" /> Falar com a Unidade {selected.name}
+                </a>
+              </div>
+            </div>
+            <div className="rounded-3xl overflow-hidden shadow-soft border border-border/50 min-h-[360px]">
+              <iframe
+                key={unit}
+                title={`Mapa Estação Laser ${selected.name}`}
+                src={`https://www.google.com/maps?q=${encodeURIComponent(selected.mapsQuery)}&output=embed`}
+                className="w-full h-full min-h-[360px] border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
             </div>
           </div>
         </div>
@@ -212,17 +338,18 @@ function Index() {
             <p className="text-white/70 text-sm">Estética avançada de alta performance em Belo Horizonte.</p>
           </div>
           <div className="space-y-2">
-            <p className="font-semibold mb-3">Localização</p>
-            <p className="flex items-center gap-2 text-white/80 text-sm"><MapPin className="w-4 h-4" /> Belo Horizonte - MG</p>
+            <p className="font-semibold mb-3">Unidades</p>
+            <p className="flex items-start gap-2 text-white/80 text-sm"><MapPin className="w-4 h-4 mt-0.5" /> Alípio de Melo — Av. Abílio Machado, 1264 / sala 1014</p>
+            <p className="flex items-start gap-2 text-white/80 text-sm"><MapPin className="w-4 h-4 mt-0.5" /> Vila Clóris — Rua das Videiras, 290</p>
           </div>
           <div className="space-y-3">
             <p className="font-semibold">Contato</p>
             <a href="https://instagram.com/estacaolaser" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/80 hover:text-white text-sm">
               <Instagram className="w-4 h-4" /> @estacaolaser
             </a>
-            <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/80 hover:text-white text-sm">
-              <MessageCircle className="w-4 h-4" /> (31) 99512-7348
-            </a>
+            <button type="button" onClick={openWhats} className="flex items-center gap-2 text-white/80 hover:text-white text-sm">
+              <MessageCircle className="w-4 h-4" /> Falar no WhatsApp
+            </button>
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-white/10 text-center text-white/50 text-xs">
@@ -231,15 +358,50 @@ function Index() {
       </footer>
 
       {/* WHATSAPP FLOAT */}
-      <a
-        href={WHATSAPP}
-        target="_blank"
-        rel="noopener noreferrer"
+      <button
+        type="button"
+        onClick={openWhats}
         aria-label="Falar no WhatsApp"
         className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-premium hover:scale-110 transition-transform animate-pulse"
       >
         <MessageCircle className="w-8 h-8" fill="currentColor" />
-      </a>
+      </button>
+
+      {/* DIALOG UNIDADES */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Escolha a unidade</DialogTitle>
+            <DialogDescription>Em qual unidade você deseja realizar sua avaliação?</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3 pt-2">
+            {(Object.keys(UNITS) as UnitKey[]).map((k) => {
+              const u = UNITS[k];
+              return (
+                <a
+                  key={k}
+                  href={u.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-between gap-4 p-4 rounded-2xl border-2 border-primary/20 hover:border-primary hover:bg-accent/40 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-xl gradient-warm flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-bold text-base">{u.name}</p>
+                      <p className="text-xs text-muted-foreground">{u.neighborhood}</p>
+                    </div>
+                  </div>
+                  <MessageCircle className="w-6 h-6 text-[#25D366] group-hover:scale-110 transition-transform" />
+                </a>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
