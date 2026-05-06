@@ -25,33 +25,57 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-const WHATSAPP_MESSAGE = encodeURIComponent("Olá! Gostaria de agendar uma avaliação.");
-const WHATSAPP_VILA_CLORIS = `https://wa.me/5531995127348?text=${WHATSAPP_MESSAGE}`;
-const WHATSAPP_ALIPIO = `https://wa.me/5531993800927?text=${WHATSAPP_MESSAGE}`;
-const HERO_IMG = "https://i.ibb.co/xcg1hhZ/Whats-App-Image-2026-04-29-at-14-55-23.jpg";
-const SERVICES_IMG = "https://i.ibb.co/wFr2YgDy/Whats-App-Image-2026-04-29-at-14-54-57.jpg";
-const PROMO_IMG = "https://i.ibb.co/KzVH8kZ7/Whats-App-Image-2026-04-29-at-14-53-02.jpg";
-
 const UNITS = {
   alipio: {
     name: "Alípio de Melo",
     address: "Avenida Abílio Machado, 1264 — Sala 1014",
     neighborhood: "Alípio de Melo, Belo Horizonte - MG",
-    whatsapp: WHATSAPP_ALIPIO,
     phone: "(31) 99380-0927",
+    waPhone: "5531993800927",
     mapsQuery: "Avenida Abílio Machado 1264 Alípio de Melo Belo Horizonte",
   },
   vila: {
     name: "Vila Clóris",
     address: "Rua das Videiras, 290",
     neighborhood: "Vila Clóris, Belo Horizonte - MG",
-    whatsapp: WHATSAPP_VILA_CLORIS,
     phone: "(31) 99512-7348",
+    waPhone: "5531995127348",
     mapsQuery: "Rua das Videiras 290 Vila Cloris Belo Horizonte",
   },
 } as const;
 
 type UnitKey = keyof typeof UNITS;
+
+const HERO_IMG = "https://i.ibb.co/xcg1hhZ/Whats-App-Image-2026-04-29-at-14-55-23.jpg";
+const SERVICES_IMG = "https://i.ibb.co/wFr2YgDy/Whats-App-Image-2026-04-29-at-14-54-57.jpg";
+const PROMO_IMG = "https://i.ibb.co/KzVH8kZ7/Whats-App-Image-2026-04-29-at-14-53-02.jpg";
+
+const WEEKDAYS_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const WEEKDAYS_LONG = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+const TIME_SLOTS = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+
+function startOfWeek(d: Date) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  x.setDate(x.getDate() - x.getDay());
+  return x;
+}
+function addDays(d: Date, n: number) {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+}
+function fmtDateBR(d: Date) {
+  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+}
+function isSameDay(a: Date, b: Date) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+function isPastDay(d: Date) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return d < today;
+}
 
 function CTAButton({ children, variant = "primary", size = "lg", onClick }: { children: React.ReactNode; variant?: "primary" | "secondary"; size?: "lg" | "md"; onClick: () => void }) {
   const base = "inline-flex items-center justify-center gap-2 font-semibold rounded-full transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] cursor-pointer";
