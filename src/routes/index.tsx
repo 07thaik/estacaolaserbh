@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { MessageCircle, Sparkles, ShieldCheck, Zap, Heart, Award, CheckCircle2, Instagram, MapPin } from "lucide-react";
+import { MessageCircle, Sparkles, ShieldCheck, Zap, Heart, Award, CheckCircle2, Instagram, MapPin, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import logo from "@/assets/logo.png";
 import laserCta from "@/assets/laser-cta.jpg";
 
@@ -23,33 +25,57 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-const WHATSAPP_MESSAGE = encodeURIComponent("Olá! Gostaria de agendar uma avaliação.");
-const WHATSAPP_VILA_CLORIS = `https://wa.me/5531995127348?text=${WHATSAPP_MESSAGE}`;
-const WHATSAPP_ALIPIO = `https://wa.me/5531993800927?text=${WHATSAPP_MESSAGE}`;
-const HERO_IMG = "https://i.ibb.co/xcg1hhZ/Whats-App-Image-2026-04-29-at-14-55-23.jpg";
-const SERVICES_IMG = "https://i.ibb.co/wFr2YgDy/Whats-App-Image-2026-04-29-at-14-54-57.jpg";
-const PROMO_IMG = "https://i.ibb.co/KzVH8kZ7/Whats-App-Image-2026-04-29-at-14-53-02.jpg";
-
 const UNITS = {
   alipio: {
     name: "Alípio de Melo",
     address: "Avenida Abílio Machado, 1264 — Sala 1014",
     neighborhood: "Alípio de Melo, Belo Horizonte - MG",
-    whatsapp: WHATSAPP_ALIPIO,
     phone: "(31) 99380-0927",
+    waPhone: "5531993800927",
     mapsQuery: "Avenida Abílio Machado 1264 Alípio de Melo Belo Horizonte",
   },
   vila: {
     name: "Vila Clóris",
     address: "Rua das Videiras, 290",
     neighborhood: "Vila Clóris, Belo Horizonte - MG",
-    whatsapp: WHATSAPP_VILA_CLORIS,
     phone: "(31) 99512-7348",
+    waPhone: "5531995127348",
     mapsQuery: "Rua das Videiras 290 Vila Cloris Belo Horizonte",
   },
 } as const;
 
 type UnitKey = keyof typeof UNITS;
+
+const HERO_IMG = "https://i.ibb.co/xcg1hhZ/Whats-App-Image-2026-04-29-at-14-55-23.jpg";
+const SERVICES_IMG = "https://i.ibb.co/wFr2YgDy/Whats-App-Image-2026-04-29-at-14-54-57.jpg";
+const PROMO_IMG = "https://i.ibb.co/KzVH8kZ7/Whats-App-Image-2026-04-29-at-14-53-02.jpg";
+
+const WEEKDAYS_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const WEEKDAYS_LONG = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+const TIME_SLOTS = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+
+function startOfWeek(d: Date) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  x.setDate(x.getDate() - x.getDay());
+  return x;
+}
+function addDays(d: Date, n: number) {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+}
+function fmtDateBR(d: Date) {
+  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+}
+function isSameDay(a: Date, b: Date) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+function isPastDay(d: Date) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return d < today;
+}
 
 function CTAButton({ children, variant = "primary", size = "lg", onClick }: { children: React.ReactNode; variant?: "primary" | "secondary"; size?: "lg" | "md"; onClick: () => void }) {
   const base = "inline-flex items-center justify-center gap-2 font-semibold rounded-full transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] cursor-pointer";
@@ -65,11 +91,64 @@ function CTAButton({ children, variant = "primary", size = "lg", onClick }: { ch
   );
 }
 
+type Step = "unit" | "info" | "date";
+
 function Index() {
   const [open, setOpen] = useState(false);
   const [unit, setUnit] = useState<UnitKey>("vila");
-  const openWhats = () => setOpen(true);
+  const [step, setStep] = useState<Step>("unit");
+  const [bookingUnit, setBookingUnit] = useState<UnitKey | null>(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+  const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(new Date()));
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+
+  const openWhats = () => {
+    setStep("unit");
+    setBookingUnit(null);
+    setName("");
+    setEmail("");
+    setErrors({});
+    setSelectedDate(null);
+    setSelectedTime(null);
+    setWeekStart(startOfWeek(new Date()));
+    setOpen(true);
+  };
+
   const selected = UNITS[unit];
+
+  const handlePickUnit = (k: UnitKey) => {
+    setBookingUnit(k);
+    setStep("info");
+  };
+
+  const handleSubmitInfo = (e: React.FormEvent) => {
+    e.preventDefault();
+    const next: { name?: string; email?: string } = {};
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    if (trimmedName.length < 2 || trimmedName.length > 80) next.name = "Informe seu nome completo.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail) || trimmedEmail.length > 120) next.email = "Informe um e-mail válido.";
+    setErrors(next);
+    if (Object.keys(next).length === 0) setStep("date");
+  };
+
+  const confirmBooking = () => {
+    if (!bookingUnit || !selectedDate || !selectedTime) return;
+    const u = UNITS[bookingUnit];
+    const weekday = WEEKDAYS_LONG[selectedDate.getDay()];
+    const msg = `Olá! Meu nome é ${name.trim()} e gostaria de agendar uma avaliação para o dia ${fmtDateBR(selectedDate)} às ${selectedTime}, ${weekday}.`;
+    const url = `https://wa.me/${u.waPhone}?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+    setOpen(false);
+  };
+
+  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const canGoPrev = weekStart > today;
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -304,14 +383,13 @@ function Index() {
                 </div>
               </div>
               <div className="mt-8">
-                <a
-                  href={selected.whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => { openWhats(); setBookingUnit(unit); setStep("info"); }}
                   className="inline-flex items-center justify-center gap-2 font-semibold rounded-full px-8 py-4 text-base bg-primary text-primary-foreground hover:bg-[oklch(0.49_0.15_45)] shadow-premium transition-all hover:scale-[1.03]"
                 >
-                  <MessageCircle className="w-5 h-5" /> Falar com a Unidade {selected.name}
-                </a>
+                  <MessageCircle className="w-5 h-5" /> Agendar na Unidade {selected.name}
+                </button>
               </div>
             </div>
             <div className="rounded-3xl overflow-hidden shadow-soft border border-border/50 min-h-[360px]">
@@ -368,39 +446,153 @@ function Index() {
         <MessageCircle className="w-8 h-8" fill="currentColor" />
       </button>
 
-      {/* DIALOG UNIDADES */}
+      {/* DIALOG AGENDAMENTO */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Escolha a unidade</DialogTitle>
-            <DialogDescription>Em qual unidade você deseja realizar sua avaliação?</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-3 pt-2">
-            {(Object.keys(UNITS) as UnitKey[]).map((k) => {
-              const u = UNITS[k];
-              return (
-                <a
-                  key={k}
-                  href={u.whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-between gap-4 p-4 rounded-2xl border-2 border-primary/20 hover:border-primary hover:bg-accent/40 transition-all group"
+        <DialogContent className="sm:max-w-lg rounded-2xl max-h-[90vh] overflow-y-auto">
+          {step === "unit" && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">Escolha a unidade</DialogTitle>
+                <DialogDescription>Em qual unidade você deseja realizar sua avaliação?</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-3 pt-2">
+                {(Object.keys(UNITS) as UnitKey[]).map((k) => {
+                  const u = UNITS[k];
+                  return (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => handlePickUnit(k)}
+                      className="flex items-center justify-between gap-4 p-4 rounded-2xl border-2 border-primary/20 hover:border-primary hover:bg-accent/40 transition-all group text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-xl gradient-warm flex items-center justify-center">
+                          <MapPin className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-base">{u.name}</p>
+                          <p className="text-xs text-muted-foreground">{u.neighborhood}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {step === "info" && bookingUnit && (
+            <>
+              <DialogHeader>
+                <button type="button" onClick={() => setStep("unit")} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-2 w-fit">
+                  <ArrowLeft className="w-3 h-3" /> Voltar
+                </button>
+                <DialogTitle className="text-2xl font-bold">Seus dados</DialogTitle>
+                <DialogDescription>Unidade {UNITS[bookingUnit].name} — informe seus dados para continuar.</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmitInfo} className="grid gap-4 pt-2">
+                <div className="grid gap-1.5">
+                  <Label htmlFor="lead-name">Nome completo</Label>
+                  <Input id="lead-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" maxLength={80} required />
+                  {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="lead-email">E-mail</Label>
+                  <Input id="lead-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" maxLength={120} required />
+                  {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                </div>
+                <button type="submit" className="mt-2 inline-flex items-center justify-center gap-2 font-semibold rounded-full px-6 py-3 text-base bg-primary text-primary-foreground hover:bg-[oklch(0.49_0.15_45)] shadow-premium transition-all">
+                  Escolher data <ChevronRight className="w-5 h-5" />
+                </button>
+              </form>
+            </>
+          )}
+
+          {step === "date" && bookingUnit && (
+            <>
+              <DialogHeader>
+                <button type="button" onClick={() => setStep("info")} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-2 w-fit">
+                  <ArrowLeft className="w-3 h-3" /> Voltar
+                </button>
+                <DialogTitle className="text-2xl font-bold">Escolha data e horário</DialogTitle>
+                <DialogDescription>Unidade {UNITS[bookingUnit].name}</DialogDescription>
+              </DialogHeader>
+
+              <div className="flex items-center justify-between mt-2">
+                <button
+                  type="button"
+                  onClick={() => canGoPrev && setWeekStart(addDays(weekStart, -7))}
+                  disabled={!canGoPrev}
+                  className="p-2 rounded-full hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed"
+                  aria-label="Semana anterior"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl gradient-warm flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-bold text-base">{u.name}</p>
-                      <p className="text-xs text-muted-foreground">{u.neighborhood}</p>
-                    </div>
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="text-sm font-semibold">
+                  {fmtDateBR(weekStart)} — {fmtDateBR(addDays(weekStart, 6))}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setWeekStart(addDays(weekStart, 7))}
+                  className="p-2 rounded-full hover:bg-accent"
+                  aria-label="Próxima semana"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-7 gap-1.5 mt-3">
+                {weekDays.map((d, i) => {
+                  const past = isPastDay(d);
+                  const sel = selectedDate && isSameDay(d, selectedDate);
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      disabled={past}
+                      onClick={() => { setSelectedDate(d); setSelectedTime(null); }}
+                      className={`flex flex-col items-center py-2 rounded-xl border text-xs transition-all ${
+                        sel ? "bg-primary text-primary-foreground border-primary" : past ? "opacity-30 cursor-not-allowed border-border" : "border-border hover:border-primary"
+                      }`}
+                    >
+                      <span className="font-medium">{WEEKDAYS_SHORT[d.getDay()]}</span>
+                      <span className="text-base font-bold">{d.getDate()}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {selectedDate && (
+                <div className="mt-4">
+                  <p className="text-sm font-semibold mb-2">Horários disponíveis</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {TIME_SLOTS.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setSelectedTime(t)}
+                        className={`py-2 rounded-lg border text-sm font-medium transition-all ${
+                          selectedTime === t ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary"
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    ))}
                   </div>
-                  <MessageCircle className="w-6 h-6 text-[#25D366] group-hover:scale-110 transition-transform" />
-                </a>
-              );
-            })}
-          </div>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={confirmBooking}
+                disabled={!selectedDate || !selectedTime}
+                className="mt-5 inline-flex items-center justify-center gap-2 font-semibold rounded-full px-6 py-3 text-base bg-[#25D366] text-white shadow-premium hover:scale-[1.02] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                <MessageCircle className="w-5 h-5" /> Confirmar no WhatsApp
+              </button>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
