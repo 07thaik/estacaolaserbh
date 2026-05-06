@@ -383,14 +383,13 @@ function Index() {
                 </div>
               </div>
               <div className="mt-8">
-                <a
-                  href={selected.whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => { openWhats(); setBookingUnit(unit); setStep("info"); }}
                   className="inline-flex items-center justify-center gap-2 font-semibold rounded-full px-8 py-4 text-base bg-primary text-primary-foreground hover:bg-[oklch(0.49_0.15_45)] shadow-premium transition-all hover:scale-[1.03]"
                 >
-                  <MessageCircle className="w-5 h-5" /> Falar com a Unidade {selected.name}
-                </a>
+                  <MessageCircle className="w-5 h-5" /> Agendar na Unidade {selected.name}
+                </button>
               </div>
             </div>
             <div className="rounded-3xl overflow-hidden shadow-soft border border-border/50 min-h-[360px]">
