@@ -23,8 +23,9 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-const WHATSAPP_VILA_CLORIS = "https://wa.me/5531995127348";
-const WHATSAPP_ALIPIO = "https://wa.me/5531993800927";
+const WHATSAPP_MESSAGE = encodeURIComponent("Olá! Gostaria de agendar uma avaliação.");
+const WHATSAPP_VILA_CLORIS = `https://wa.me/5531995127348?text=${WHATSAPP_MESSAGE}`;
+const WHATSAPP_ALIPIO = `https://wa.me/5531993800927?text=${WHATSAPP_MESSAGE}`;
 const HERO_IMG = "https://i.ibb.co/xcg1hhZ/Whats-App-Image-2026-04-29-at-14-55-23.jpg";
 const SERVICES_IMG = "https://i.ibb.co/wFr2YgDy/Whats-App-Image-2026-04-29-at-14-54-57.jpg";
 const PROMO_IMG = "https://i.ibb.co/KzVH8kZ7/Whats-App-Image-2026-04-29-at-14-53-02.jpg";
@@ -188,7 +189,7 @@ function Index() {
       {/* PROMO */}
       <section className="py-20 md:py-28 px-6 md:px-12 bg-accent/40">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div className="relative">
+          <div className="relative mx-auto w-full max-w-md">
             <div className="absolute -inset-4 gradient-warm rounded-3xl blur-2xl opacity-20" />
             <img src={PROMO_IMG} alt="Promoção exclusiva de depilação a laser" loading="lazy" className="relative rounded-3xl shadow-premium w-full object-cover" />
           </div>
@@ -198,7 +199,7 @@ function Index() {
               Condições especiais para sua <span className="text-gradient-warm">primeira avaliação</span>
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Aproveite preços promocionais em pacotes de depilação a laser com a tecnologia Galaxy Fiber Evo. Vagas limitadas — garanta a sua agora pelo WhatsApp.
+              Aproveite preços promocionais em pacotes de depilação a laser. Vagas limitadas — garanta a sua agora pelo WhatsApp.
             </p>
             <ul className="space-y-3">
               {["Avaliação personalizada sem compromisso", "Pacotes com condições exclusivas", "Atendimento direto com especialista"].map((b, i) => (
@@ -344,8 +345,8 @@ function Index() {
           </div>
           <div className="space-y-3">
             <p className="font-semibold">Contato</p>
-            <a href="https://instagram.com/estacaolaser" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/80 hover:text-white text-sm">
-              <Instagram className="w-4 h-4" /> @estacaolaser
+            <a href="https://instagram.com/estacaolaserbh" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/80 hover:text-white text-sm">
+              <Instagram className="w-4 h-4" /> @estacaolaserbh
             </a>
             <button type="button" onClick={openWhats} className="flex items-center gap-2 text-white/80 hover:text-white text-sm">
               <MessageCircle className="w-4 h-4" /> Falar no WhatsApp
