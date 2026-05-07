@@ -382,151 +382,34 @@ function Index() {
       {/* DIALOG AGENDAMENTO */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-lg rounded-2xl max-h-[90vh] overflow-y-auto">
-          {step === "unit" && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold">Escolha a unidade</DialogTitle>
-                <DialogDescription>Em qual unidade você deseja realizar sua avaliação?</DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-3 pt-2">
-                {(Object.keys(UNITS) as UnitKey[]).map((k) => {
-                  const u = UNITS[k];
-                  return (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => handlePickUnit(k)}
-                      className="flex items-center justify-between gap-4 p-4 rounded-2xl border-2 border-primary/20 hover:border-primary hover:bg-accent/40 transition-all group text-left"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-xl gradient-warm flex items-center justify-center">
-                          <MapPin className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <p className="font-bold text-base">{u.name}</p>
-                          <p className="text-xs text-muted-foreground">{u.neighborhood}</p>
-                        </div>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-          {step === "info" && bookingUnit && (
-            <>
-              <DialogHeader>
-                <button type="button" onClick={() => setStep("unit")} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-2 w-fit">
-                  <ArrowLeft className="w-3 h-3" /> Voltar
-                </button>
-                <DialogTitle className="text-2xl font-bold">Seus dados</DialogTitle>
-                <DialogDescription>Unidade {UNITS[bookingUnit].name} — informe seus dados para continuar.</DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmitInfo} className="grid gap-4 pt-2">
-                <div className="grid gap-1.5">
-                  <Label htmlFor="lead-name">Nome completo</Label>
-                  <Input id="lead-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" maxLength={80} required />
-                  {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="lead-email">E-mail</Label>
-                  <Input id="lead-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" maxLength={120} required />
-                  {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-                </div>
-                <button type="submit" className="mt-2 inline-flex items-center justify-center gap-2 font-semibold rounded-full px-6 py-3 text-base bg-primary text-primary-foreground hover:bg-[oklch(0.49_0.15_45)] shadow-premium transition-all">
-                  Escolher data <ChevronRight className="w-5 h-5" />
-                </button>
-              </form>
-            </>
-          )}
-
-          {step === "date" && bookingUnit && (
-            <>
-              <DialogHeader>
-                <button type="button" onClick={() => setStep("info")} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-2 w-fit">
-                  <ArrowLeft className="w-3 h-3" /> Voltar
-                </button>
-                <DialogTitle className="text-2xl font-bold">Escolha data e horário</DialogTitle>
-                <DialogDescription>Unidade {UNITS[bookingUnit].name}</DialogDescription>
-              </DialogHeader>
-
-              <div className="flex items-center justify-between mt-2">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Escolha a unidade</DialogTitle>
+            <DialogDescription>Em qual unidade você deseja realizar sua avaliação?</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3 pt-2">
+            {(Object.keys(UNITS) as UnitKey[]).map((k) => {
+              const u = UNITS[k];
+              return (
                 <button
+                  key={k}
                   type="button"
-                  onClick={() => canGoPrev && setWeekStart(addDays(weekStart, -7))}
-                  disabled={!canGoPrev}
-                  className="p-2 rounded-full hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed"
-                  aria-label="Semana anterior"
+                  onClick={() => handlePickUnit(k)}
+                  className="flex items-center justify-between gap-4 p-4 rounded-2xl border-2 border-primary/20 hover:border-primary hover:bg-accent/40 transition-all group text-left"
                 >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <span className="text-sm font-semibold">
-                  {fmtDateBR(weekStart)} — {fmtDateBR(addDays(weekStart, 6))}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setWeekStart(addDays(weekStart, 7))}
-                  className="p-2 rounded-full hover:bg-accent"
-                  aria-label="Próxima semana"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-7 gap-1.5 mt-3">
-                {weekDays.map((d, i) => {
-                  const past = isPastDay(d);
-                  const sel = selectedDate && isSameDay(d, selectedDate);
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      disabled={past}
-                      onClick={() => { setSelectedDate(d); setSelectedTime(null); }}
-                      className={`flex flex-col items-center py-2 rounded-xl border text-xs transition-all ${
-                        sel ? "bg-primary text-primary-foreground border-primary" : past ? "opacity-30 cursor-not-allowed border-border" : "border-border hover:border-primary"
-                      }`}
-                    >
-                      <span className="font-medium">{WEEKDAYS_SHORT[d.getDay()]}</span>
-                      <span className="text-base font-bold">{d.getDate()}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {selectedDate && (
-                <div className="mt-4">
-                  <p className="text-sm font-semibold mb-2">Horários disponíveis</p>
-                  <div className="grid grid-cols-4 gap-2">
-                    {TIME_SLOTS.map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => setSelectedTime(t)}
-                        className={`py-2 rounded-lg border text-sm font-medium transition-all ${
-                          selectedTime === t ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary"
-                        }`}
-                      >
-                        {t}
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-xl gradient-warm flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-base">{u.name}</p>
+                      <p className="text-xs text-muted-foreground">{u.neighborhood}</p>
+                    </div>
                   </div>
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={confirmBooking}
-                disabled={!selectedDate || !selectedTime}
-                className="mt-5 inline-flex items-center justify-center gap-2 font-semibold rounded-full px-6 py-3 text-base bg-[#25D366] text-white shadow-premium hover:scale-[1.02] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
-              >
-                <MessageCircle className="w-5 h-5" /> Confirmar no WhatsApp
-              </button>
-            </>
-          )}
-        </DialogContent>
+                  <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
+                </button>
+              );
+            })}
+          </div>
       </Dialog>
     </div>
   );
