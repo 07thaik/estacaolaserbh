@@ -2,8 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { MessageCircle, Sparkles, ShieldCheck, Zap, Heart, Award, CheckCircle2, Instagram, MapPin, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import logo from "@/assets/logo.png";
 import laserCta from "@/assets/laser-cta.jpg";
+
+const PROCEDURES = ["Depilação a Laser", "Criomodelagem", "Limpeza de Pele"] as const;
+type Procedure = (typeof PROCEDURES)[number];
+
+function joinList(items: string[]) {
+  if (items.length <= 1) return items.join("");
+  if (items.length === 2) return `${items[0]} e ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")} e ${items[items.length - 1]}`;
+}
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -48,7 +60,7 @@ const HERO_IMG = "https://i.ibb.co/xcg1hhZ/Whats-App-Image-2026-04-29-at-14-55-2
 const SERVICES_IMG = "https://i.ibb.co/wFr2YgDy/Whats-App-Image-2026-04-29-at-14-54-57.jpg";
 const PROMO_IMG = "https://i.ibb.co/KzVH8kZ7/Whats-App-Image-2026-04-29-at-14-53-02.jpg";
 
-const WHATSAPP_MESSAGE = encodeURIComponent("Olá! Gostaria de agendar uma avaliação.");
+
 
 function CTAButton({ children, variant = "primary", size = "lg", onClick }: { children: React.ReactNode; variant?: "primary" | "secondary"; size?: "lg" | "md"; onClick: () => void }) {
   const base = "inline-flex items-center justify-center gap-2 font-semibold rounded-full transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] cursor-pointer";
@@ -64,21 +76,41 @@ function CTAButton({ children, variant = "primary", size = "lg", onClick }: { ch
   );
 }
 
-type Step = "unit" | "info" | "date";
+type Step = "unit" | "info";
 
 function Index() {
   const [open, setOpen] = useState(false);
   const [unit, setUnit] = useState<UnitKey>("vila");
+  const [step, setStep] = useState<Step>("unit");
+  const [pickedUnit, setPickedUnit] = useState<UnitKey | null>(null);
+  const [name, setName] = useState("");
+  const [procedures, setProcedures] = useState<Procedure[]>([]);
 
   const openWhats = () => {
+    setStep("unit");
+    setPickedUnit(null);
+    setName("");
+    setProcedures([]);
     setOpen(true);
   };
 
   const selected = UNITS[unit];
 
   const handlePickUnit = (k: UnitKey) => {
-    const u = UNITS[k];
-    const url = `https://wa.me/${u.waPhone}?text=${WHATSAPP_MESSAGE}`;
+    setPickedUnit(k);
+    setStep("info");
+  };
+
+  const toggleProcedure = (p: Procedure) => {
+    setProcedures((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
+  };
+
+  const submitInfo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pickedUnit || !name.trim() || procedures.length === 0) return;
+    const u = UNITS[pickedUnit];
+    const msg = `Olá, meu nome é ${name.trim()} e gostaria de agendar uma avaliação para ${joinList(procedures)}.`;
+    const url = `https://wa.me/${u.waPhone}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank", "noopener,noreferrer");
     setOpen(false);
   };
@@ -318,7 +350,7 @@ function Index() {
               <div className="mt-8">
                 <button
                   type="button"
-                  onClick={() => handlePickUnit(unit)}
+                  onClick={() => { openWhats(); handlePickUnit(unit); }}
                   className="inline-flex items-center justify-center gap-2 font-semibold rounded-full px-8 py-4 text-base bg-primary text-primary-foreground hover:bg-[oklch(0.49_0.15_45)] shadow-premium transition-all hover:scale-[1.03]"
                 >
                   <MessageCircle className="w-5 h-5" /> Agendar na Unidade {selected.name}
@@ -382,34 +414,88 @@ function Index() {
       {/* DIALOG AGENDAMENTO */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-lg rounded-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Escolha a unidade</DialogTitle>
-            <DialogDescription>Em qual unidade você deseja realizar sua avaliação?</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-3 pt-2">
-            {(Object.keys(UNITS) as UnitKey[]).map((k) => {
-              const u = UNITS[k];
-              return (
-                <button
-                  key={k}
-                  type="button"
-                  onClick={() => handlePickUnit(k)}
-                  className="flex items-center justify-between gap-4 p-4 rounded-2xl border-2 border-primary/20 hover:border-primary hover:bg-accent/40 transition-all group text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl gradient-warm flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-base">{u.name}</p>
-                      <p className="text-xs text-muted-foreground">{u.neighborhood}</p>
-                    </div>
+          {step === "unit" ? (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">Escolha a unidade</DialogTitle>
+                <DialogDescription>Em qual unidade você deseja realizar sua avaliação?</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-3 pt-2">
+                {(Object.keys(UNITS) as UnitKey[]).map((k) => {
+                  const u = UNITS[k];
+                  return (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => handlePickUnit(k)}
+                      className="flex items-center justify-between gap-4 p-4 rounded-2xl border-2 border-primary/20 hover:border-primary hover:bg-accent/40 transition-all group text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-xl gradient-warm flex items-center justify-center">
+                          <MapPin className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-base">{u.name}</p>
+                          <p className="text-xs text-muted-foreground">{u.neighborhood}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <form onSubmit={submitInfo}>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">Seus dados</DialogTitle>
+                <DialogDescription>
+                  Unidade {pickedUnit ? UNITS[pickedUnit].name : ""}. Informe seu nome e o(s) procedimento(s) desejado(s).
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-5 pt-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="lead-name">Nome</Label>
+                  <Input id="lead-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" required autoFocus />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Procedimentos</Label>
+                  <div className="grid gap-2">
+                    {PROCEDURES.map((p) => {
+                      const checked = procedures.includes(p);
+                      return (
+                        <label
+                          key={p}
+                          className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                            checked ? "border-primary bg-accent/40" : "border-primary/20 hover:border-primary/50"
+                          }`}
+                        >
+                          <Checkbox checked={checked} onCheckedChange={() => toggleProcedure(p)} />
+                          <span className="font-medium text-sm">{p}</span>
+                        </label>
+                      );
+                    })}
                   </div>
-                  <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
-                </button>
-              );
-            })}
-          </div>
+                </div>
+                <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-between pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setStep("unit")}
+                    className="inline-flex items-center justify-center gap-2 font-semibold rounded-full px-6 py-3 text-sm border-2 border-primary/20 hover:border-primary text-foreground transition-all"
+                  >
+                    Voltar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!name.trim() || procedures.length === 0}
+                    className="inline-flex items-center justify-center gap-2 font-semibold rounded-full px-6 py-3 text-sm bg-primary text-primary-foreground hover:bg-[oklch(0.49_0.15_45)] shadow-premium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <MessageCircle className="w-4 h-4" /> Enviar no WhatsApp
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
     </div>
