@@ -410,6 +410,7 @@ function Index() {
               );
             })}
           </div>
+        </DialogContent>
       </Dialog>
     </div>
   );
