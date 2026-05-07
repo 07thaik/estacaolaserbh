@@ -76,21 +76,41 @@ function CTAButton({ children, variant = "primary", size = "lg", onClick }: { ch
   );
 }
 
-type Step = "unit" | "info" | "date";
+type Step = "unit" | "info";
 
 function Index() {
   const [open, setOpen] = useState(false);
   const [unit, setUnit] = useState<UnitKey>("vila");
+  const [step, setStep] = useState<Step>("unit");
+  const [pickedUnit, setPickedUnit] = useState<UnitKey | null>(null);
+  const [name, setName] = useState("");
+  const [procedures, setProcedures] = useState<Procedure[]>([]);
 
   const openWhats = () => {
+    setStep("unit");
+    setPickedUnit(null);
+    setName("");
+    setProcedures([]);
     setOpen(true);
   };
 
   const selected = UNITS[unit];
 
   const handlePickUnit = (k: UnitKey) => {
-    const u = UNITS[k];
-    const url = `https://wa.me/${u.waPhone}?text=${WHATSAPP_MESSAGE}`;
+    setPickedUnit(k);
+    setStep("info");
+  };
+
+  const toggleProcedure = (p: Procedure) => {
+    setProcedures((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
+  };
+
+  const submitInfo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pickedUnit || !name.trim() || procedures.length === 0) return;
+    const u = UNITS[pickedUnit];
+    const msg = `Olá, meu nome é ${name.trim()} e gostaria de agendar uma avaliação para ${joinList(procedures)}.`;
+    const url = `https://wa.me/${u.waPhone}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank", "noopener,noreferrer");
     setOpen(false);
   };
