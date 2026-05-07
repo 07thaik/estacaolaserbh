@@ -69,59 +69,19 @@ type Step = "unit" | "info" | "date";
 function Index() {
   const [open, setOpen] = useState(false);
   const [unit, setUnit] = useState<UnitKey>("vila");
-  const [step, setStep] = useState<Step>("unit");
-  const [bookingUnit, setBookingUnit] = useState<UnitKey | null>(null);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
-  const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(new Date()));
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   const openWhats = () => {
-    setStep("unit");
-    setBookingUnit(null);
-    setName("");
-    setEmail("");
-    setErrors({});
-    setSelectedDate(null);
-    setSelectedTime(null);
-    setWeekStart(startOfWeek(new Date()));
     setOpen(true);
   };
 
   const selected = UNITS[unit];
 
   const handlePickUnit = (k: UnitKey) => {
-    setBookingUnit(k);
-    setStep("info");
-  };
-
-  const handleSubmitInfo = (e: React.FormEvent) => {
-    e.preventDefault();
-    const next: { name?: string; email?: string } = {};
-    const trimmedName = name.trim();
-    const trimmedEmail = email.trim();
-    if (trimmedName.length < 2 || trimmedName.length > 80) next.name = "Informe seu nome completo.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail) || trimmedEmail.length > 120) next.email = "Informe um e-mail válido.";
-    setErrors(next);
-    if (Object.keys(next).length === 0) setStep("date");
-  };
-
-  const confirmBooking = () => {
-    if (!bookingUnit || !selectedDate || !selectedTime) return;
-    const u = UNITS[bookingUnit];
-    const weekday = WEEKDAYS_LONG[selectedDate.getDay()];
-    const msg = `Olá! Meu nome é ${name.trim()} e gostaria de agendar uma avaliação para o dia ${fmtDateBR(selectedDate)} às ${selectedTime}, ${weekday}.`;
-    const url = `https://wa.me/${u.waPhone}?text=${encodeURIComponent(msg)}`;
+    const u = UNITS[k];
+    const url = `https://wa.me/${u.waPhone}?text=${WHATSAPP_MESSAGE}`;
     window.open(url, "_blank", "noopener,noreferrer");
     setOpen(false);
   };
-
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const canGoPrev = weekStart > today;
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
