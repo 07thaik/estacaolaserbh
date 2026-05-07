@@ -91,9 +91,9 @@ function Index() {
           <img src={logo} alt="Estação Laser" className="w-9 h-9 object-contain" />
           <span className="font-bold text-lg tracking-tight">Estação Laser</span>
         </div>
-        <button type="button" onClick={openWhats} className="hidden md:inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-[oklch(0.49_0.15_45)]">
-          <MessageCircle className="w-4 h-4" /> Falar no WhatsApp
-        </button>
+        <a href="https://instagram.com/estacaolaserbh" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-[oklch(0.49_0.15_45)]">
+          <Instagram className="w-4 h-4" /> @estacaolaserbh
+        </a>
       </header>
 
       {/* HERO */}
