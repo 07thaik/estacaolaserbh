@@ -2,8 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { MessageCircle, Sparkles, ShieldCheck, Zap, Heart, Award, CheckCircle2, Instagram, MapPin, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import logo from "@/assets/logo.png";
 import laserCta from "@/assets/laser-cta.jpg";
+
+const PROCEDURES = ["Depilação a Laser", "Criomodelagem", "Limpeza de Pele"] as const;
+type Procedure = (typeof PROCEDURES)[number];
+
+function joinList(items: string[]) {
+  if (items.length <= 1) return items.join("");
+  if (items.length === 2) return `${items[0]} e ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")} e ${items[items.length - 1]}`;
+}
 
 export const Route = createFileRoute("/")({
   component: Index,
