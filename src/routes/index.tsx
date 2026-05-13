@@ -111,6 +111,16 @@ function Index() {
     const u = UNITS[pickedUnit];
     const msg = `Olá, meu nome é ${name.trim()} e gostaria de agendar uma avaliação para ${joinList(procedures)}.`;
     const url = `https://wa.me/${u.waPhone}?text=${encodeURIComponent(msg)}`;
+    const eventName = pickedUnit === "alipio" ? "lead_alipiodemelo" : "lead_vilacloris";
+    if (typeof window !== "undefined") {
+      (window as any).dataLayer = (window as any).dataLayer || [];
+      (window as any).dataLayer.push({
+        event: eventName,
+        unit: u.name,
+        procedures: procedures,
+        procedures_text: joinList(procedures),
+      });
+    }
     window.open(url, "_blank", "noopener,noreferrer");
     setOpen(false);
   };
